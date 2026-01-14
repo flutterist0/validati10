@@ -1,4 +1,4 @@
-name: azerbaijan_utils
+name: validati10
 description: A comprehensive validator package for Azerbaijan-specific data formats including phone numbers, FIN codes, vehicle plates, and postal codes.
 version: 1.0.0
 homepage: https://github.com/flutterist0/azerbaijan_utils

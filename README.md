@@ -1,4 +1,4 @@
-# Azerbaijan Utils 🇦🇿
+# Validati10 🇦🇿
 
 Azərbaycan formatlarını yoxlamaq üçün Flutter package - mobil nömrələr, FİN kodları, avtomobil nömrələri və poçt indeksləri.
 
@@ -20,7 +20,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  azerbaijan_utils: ^1.0.0
+  validati10: ^1.0.0
 ```
 
 Then run:
@@ -34,22 +34,22 @@ flutter pub get
 ### Import the package
 
 ```dart
-import 'package:azerbaijan_utils/azerbaijan_utils.dart';
+import 'package:validati10/validati10.dart';
 ```
 
 ### Phone Number Validation
 
 ```dart
 // Validate phone numbers
-bool isValid = AzerbaijanUtils.validatePhoneNumber('+994501234567');
+bool isValid = Validati10.validatePhoneNumber('+994501234567');
 // Returns: true
 
 // Format phone number
-String? formatted = AzerbaijanUtils.formatPhoneNumber('0501234567');
+String? formatted = Validati10.formatPhoneNumber('0501234567');
 // Returns: +994501234567
 
 // Get operator name
-String? operator = AzerbaijanUtils.getPhoneOperator('+994501234567');
+String? operator = Validati10.getPhoneOperator('+994501234567');
 // Returns: Azercell
 
 // Supported operators:
@@ -64,7 +64,7 @@ String? operator = AzerbaijanUtils.getPhoneOperator('+994501234567');
 
 ```dart
 // Validate FIN codes (7 characters: letters + numbers)
-bool isValid = AzerbaijanUtils.validateFIN('1AB2C3D');
+bool isValid = Validati10.validateFIN('1AB2C3D');
 // Returns: true
 
 // Examples of valid FIN codes:
@@ -75,15 +75,15 @@ bool isValid = AzerbaijanUtils.validateFIN('1AB2C3D');
 
 ```dart
 // Validate vehicle plates
-bool isValid = AzerbaijanUtils.validateVehiclePlate('10-AA-123');
+bool isValid = Validati10.validateVehiclePlate('10-AA-123');
 // Returns: true
 
 // Format plate number
-String? formatted = AzerbaijanUtils.formatVehiclePlate('10AA123');
+String? formatted = Validati10.formatVehiclePlate('10AA123');
 // Returns: 10-AA-123
 
 // Get region code
-String? region = AzerbaijanUtils.getVehicleRegion('10-AA-123');
+String? region = Validati10.getVehicleRegion('10-AA-123');
 // Returns: 10 (Baku)
 
 // Supported formats: 10-AA-123, 10AA123, 10 AA 123
@@ -93,11 +93,11 @@ String? region = AzerbaijanUtils.getVehicleRegion('10-AA-123');
 
 ```dart
 // Validate postal codes
-bool isValid = AzerbaijanUtils.validatePostalCode('AZ1000');
+bool isValid = Validati10.validatePostalCode('AZ1000');
 // Returns: true
 
 // Format postal code
-String? formatted = AzerbaijanUtils.formatPostalCode('AZ1000');
+String? formatted = Validati10.formatPostalCode('AZ1000');
 // Returns: AZ 1000
 
 // Supported formats: AZ1000, AZ100000
@@ -133,17 +133,17 @@ print(postal.formattedPostalCode);   // AZ 1000
 ## Complete Example 📝
 
 ```dart
-import 'package:azerbaijan_utils/azerbaijan_utils.dart';
+import 'package:validati10/validati10.dart';
 
 void main() {
   // Phone validation
-  if (AzerbaijanUtils.validatePhoneNumber('+994501234567')) {
+  if (Validati10.validatePhoneNumber('+994501234567')) {
     print('Valid phone number!');
-    print('Operator: ${AzerbaijanUtils.getPhoneOperator('+994501234567')}');
+    print('Operator: ${Validati10.getPhoneOperator('+994501234567')}');
   }
   
   // FIN validation
-  if (AzerbaijanUtils.validateFIN('1AB2C3D')) {
+  if (Validati10.validateFIN('1AB2C3D')) {
     print('Valid FIN code!');
   }
   
@@ -163,7 +163,7 @@ void main() {
 
 ## API Reference 📚
 
-### AzerabijanUtils Class
+### Validati10 Class
 
 | Method | Parameters | Returns | Description |
 |--------|-----------|---------|-------------|

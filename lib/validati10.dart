@@ -1,5 +1,5 @@
 
-class AzerbaijanUtils {
+class Validati10 {
   static bool validatePhoneNumber(String phoneNumber) {
     if (phoneNumber.isEmpty) return false;
     
@@ -118,22 +118,22 @@ class AzerbaijanUtils {
   }
 }
 
-extension AzerbaijanUtilsExtension on String {
-  bool get isValidAzPhoneNumber => AzerbaijanUtils.validatePhoneNumber(this);
+extension Validati10Extension on String {
+  bool get isValidAzPhoneNumber => Validati10.validatePhoneNumber(this);
   
-  bool get isValidFIN => AzerbaijanUtils.validateFIN(this);
+  bool get isValidFIN => Validati10.validateFIN(this);
   
-  bool get isValidVehiclePlate => AzerbaijanUtils.validateVehiclePlate(this);
+  bool get isValidVehiclePlate => Validati10.validateVehiclePlate(this);
   
-  bool get isValidPostalCode => AzerbaijanUtils.validatePostalCode(this);
+  bool get isValidPostalCode => Validati10.validatePostalCode(this);
   
-  String? get formattedPhoneNumber => AzerbaijanUtils .formatPhoneNumber(this);
+  String? get formattedPhoneNumber => Validati10.formatPhoneNumber(this);
   
-  String? get formattedVehiclePlate => AzerbaijanUtils.formatVehiclePlate(this);
+  String? get formattedVehiclePlate => Validati10.formatVehiclePlate(this);
   
-  String? get formattedPostalCode => AzerbaijanUtils.formatPostalCode(this);
+  String? get formattedPostalCode => Validati10.formatPostalCode(this);
   
-  String? get phoneOperator => AzerbaijanUtils.getPhoneOperator(this);
+  String? get phoneOperator => Validati10.getPhoneOperator(this);
   
-  String? get vehicleRegion => AzerbaijanUtils.getVehicleRegion(this);
+  String? get vehicleRegion => Validati10.getVehicleRegion(this);
 }
