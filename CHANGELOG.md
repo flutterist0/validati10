@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [2.0.4] - 2026-01-16
+## [2.0.5] - 2026-01-16
 
 ### 🚀 Major Architecture Change: Dynamic Rule Engine
 
@@ -30,7 +30,7 @@ The package has been completely refactored to support multiple countries via a c
 
 ---
 
-## [2.0.0] - 2026-01-16
+## [2.0.5] - 2026-01-16
 
 ### Added
 
