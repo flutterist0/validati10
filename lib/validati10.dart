@@ -1,139 +1,115 @@
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
+
 
 class Validati10 {
-  static bool validatePhoneNumber(String phoneNumber) {
-    if (phoneNumber.isEmpty) return false;
-    
-    String cleaned = phoneNumber.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-    
-    RegExp regex = RegExp(
-      r'^(\+994|994|0)(50|51|55|70|77|99|10|60)\d{7}$'
-    );
-    
-    return regex.hasMatch(cleaned);
-  }
+  static Map<String, dynamic> _rules = {};
 
-  static bool validateFIN(String fin) {
-    if (fin.isEmpty) return false;
-    
-    String cleaned = fin.toUpperCase().trim();
-    
-    if (cleaned.length != 7) return false;
-    
-    bool hasLetter = RegExp(r'[A-Z]').hasMatch(cleaned);
-    bool hasDigit = RegExp(r'[0-9]').hasMatch(cleaned);
-    bool onlyValidChars = RegExp(r'^[A-Z0-9]+$').hasMatch(cleaned);
-    
-    return hasLetter && hasDigit && onlyValidChars;
-  }
-  static bool validateVehiclePlate(String plate) {
-    if (plate.isEmpty) return false;
-    
-    String cleaned = plate.toUpperCase().replaceAll(RegExp(r'[\s\-]'), '');
-    
-    RegExp regex = RegExp(r'^[0-9]{2}[A-Z]{2}[0-9]{3}$');
-    
-    return regex.hasMatch(cleaned);
-  }
+  static Future<void> initialize({
+    String? customPath,
+  }) async {
+    try {
+      String jsonString;
+      
+      if (customPath != null) {
+        jsonString = await rootBundle.loadString(customPath);
+      } else {
+        jsonString = await rootBundle.loadString('packages/validati10/assets/rules.json');
+      }
 
-  static bool validatePostalCode(String postalCode) {
-    if (postalCode.isEmpty) return false;
-    
-    String cleaned = postalCode.toUpperCase().replaceAll(RegExp(r'\s'), '');
-    
-    RegExp regex = RegExp(r'^AZ\d{4}(\d{2})?$');
-    
-    return regex.hasMatch(cleaned);
-  }
-
-  static String? formatPhoneNumber(String phoneNumber) {
-    if (!validatePhoneNumber(phoneNumber)) return null;
-    
-    String cleaned = phoneNumber.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-    
-    if (cleaned.startsWith('+994')) {
-      return cleaned;
-    } else if (cleaned.startsWith('994')) {
-      return '+$cleaned';
-    } else if (cleaned.startsWith('0')) {
-      return '+994${cleaned.substring(1)}';
+      _rules = json.decode(jsonString);
+    } catch (e) {
+      print("Validati10 Error: Qaydalar yüklənə bilmədi. Xəta: $e");
+      _rules = {}; 
     }
+  }
+
+  static Map<String, dynamic>? _getCountryRules(String countryCode) {
+    return _rules[countryCode.toUpperCase()];
+  }
+
+
+  static bool validatePhoneNumber(String phoneNumber, {required String country}) {
+    var rules = _getCountryRules(country)?['phone'];
+    if (rules == null || phoneNumber.isEmpty) return false;
+
+    String cleanRegex = rules['format_clean_regex'] ?? r'[\s\-\(\)]';
+    String cleaned = phoneNumber.replaceAll(RegExp(cleanRegex), '');
     
+    return RegExp(rules['regex']).hasMatch(cleaned);
+  }
+
+  static String? getPhoneOperator(String phoneNumber, {required String country}) {
+    if (!validatePhoneNumber(phoneNumber, country: country)) return null;
+
+    var rules = _getCountryRules(country)?['phone'];
+    if (rules == null) return null;
+
+    String cleanRegex = rules['format_clean_regex'] ?? r'[\s\-\(\)]';
+    String cleaned = phoneNumber.replaceAll(RegExp(cleanRegex), '');
+    Map<String, dynamic> operators = rules['operators'] ?? {};
+
+    for (var prefix in operators.keys) {
+      if (cleaned.contains(prefix)) {
+         if (country.toUpperCase() == 'AZ') {
+            if (cleaned.startsWith('0') && cleaned.startsWith(prefix, 1)) return operators[prefix];
+            if ((cleaned.startsWith('994') || cleaned.startsWith('+994')) && cleaned.contains(prefix)) {
+               return operators[prefix];
+            }
+         } else {
+             return operators[prefix];
+         }
+      }
+    }
     return null;
   }
 
-  static String? formatVehiclePlate(String plate) {
-    if (!validateVehiclePlate(plate)) return null;
-    
+
+  static bool validateIdentity(String id, {required String country}) {
+    var rules = _getCountryRules(country)?['identity'];
+    if (rules == null || id.isEmpty) return false;
+
+    String cleaned = id.toUpperCase().trim();
+
+    if (rules['length'] != null && cleaned.length != rules['length']) return false;
+
+    bool matchesRegex = RegExp(rules['regex']).hasMatch(cleaned);
+    bool hasDigit = rules['requires_digit'] == true ? RegExp(r'[0-9]').hasMatch(cleaned) : true;
+    bool hasLetter = rules['requires_letter'] == true ? RegExp(r'[A-Z]').hasMatch(cleaned) : true;
+
+    return matchesRegex && hasDigit && hasLetter;
+  }
+
+
+  static bool validateVehiclePlate(String plate, {required String country}) {
+    var rules = _getCountryRules(country)?['vehicle'];
+    if (rules == null || plate.isEmpty) return false;
+
     String cleaned = plate.toUpperCase().replaceAll(RegExp(r'[\s\-]'), '');
-    
-    return '${cleaned.substring(0, 2)}-${cleaned.substring(2, 4)}-${cleaned.substring(4, 7)}';
+    return RegExp(rules['regex']).hasMatch(cleaned);
   }
 
-  static String? formatPostalCode(String postalCode) {
-    if (!validatePostalCode(postalCode)) return null;
+  static String? getVehicleRegion(String plate, {required String country}) {
+    if (!validateVehiclePlate(plate, country: country)) return null;
     
+    var rules = _getCountryRules(country)?['vehicle'];
+    
+    if (rules != null && rules['region_index'] != null) {
+       String cleaned = plate.toUpperCase().replaceAll(RegExp(r'[\s\-]'), '');
+       List<dynamic> idx = rules['region_index'];
+       if (idx.length == 2) {
+         return cleaned.substring(idx[0], idx[1]);
+       }
+    }
+    return null;
+  }
+
+
+  static bool validatePostalCode(String postalCode, {required String country}) {
+    var rules = _getCountryRules(country)?['postal'];
+    if (rules == null || postalCode.isEmpty) return false;
+
     String cleaned = postalCode.toUpperCase().replaceAll(RegExp(r'\s'), '');
-    
-    return '${cleaned.substring(0, 2)} ${cleaned.substring(2)}';
+    return RegExp(rules['regex']).hasMatch(cleaned);
   }
-
-
-  static String? getPhoneOperator(String phoneNumber) { 
-    if (!validatePhoneNumber(phoneNumber)) return null;
-    
-    String cleaned = phoneNumber.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-    
-    String operatorCode = '';
-    if (cleaned.startsWith('+994') || cleaned.startsWith('994')) {
-      operatorCode = cleaned.substring(cleaned.indexOf('994') + 3, cleaned.indexOf('994') + 5);
-    } else if (cleaned.startsWith('0')) {
-      operatorCode = cleaned.substring(1, 3);
-    }
-    
-    switch (operatorCode) {
-      case '50':
-      case '51':
-      case '55':
-        return 'Azercell';
-      case '70':
-      case '77':
-        return 'Bakcell';
-      case '99':
-        return 'Nar Mobile';
-      case '10':
-        return 'Nakhtel';
-      case '60':
-        return 'Ulduz Mobile';
-      default:
-        return null;
-    }
-  }
-
-
-  static String? getVehicleRegion(String plate) {
-    if (!validateVehiclePlate(plate)) return null;
-    
-    String cleaned = plate.replaceAll(RegExp(r'[\s\-]'), '');
-    return cleaned.substring(0, 2);
-  }
-}
-
-extension Validati10Extension on String {
-  bool get isValidAzPhoneNumber => Validati10.validatePhoneNumber(this);
-  
-  bool get isValidFIN => Validati10.validateFIN(this);
-  
-  bool get isValidVehiclePlate => Validati10.validateVehiclePlate(this);
-  
-  bool get isValidPostalCode => Validati10.validatePostalCode(this);
-  
-  String? get formattedPhoneNumber => Validati10.formatPhoneNumber(this);
-  
-  String? get formattedVehiclePlate => Validati10.formatVehiclePlate(this);
-  
-  String? get formattedPostalCode => Validati10.formatPostalCode(this);
-  
-  String? get phoneOperator => Validati10.getPhoneOperator(this);
-  
-  String? get vehicleRegion => Validati10.getVehicleRegion(this);
 }
