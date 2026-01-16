@@ -22,7 +22,7 @@ A comprehensive, configuration-driven Flutter package for validating data format
 
 ```yaml
 dependencies:
-  validati10: ^1.0.0
+  validati10: ^2.0.0
 ```
 
 ### 2. Run:
