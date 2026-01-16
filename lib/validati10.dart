@@ -3,56 +3,43 @@ import 'package:flutter/services.dart' show rootBundle;
 
 class Validati10 {
   static Map<String, dynamic> _rules = {};
-  static bool _isInitialized = false;
 
-  static Future<void> initialize({String? customPath}) async {
-    if (_isInitialized && customPath == null) return;
-
+  static Future<void> initialize({
+    String? customPath,
+  }) async {
     try {
       String jsonString;
-      
+
       if (customPath != null) {
         jsonString = await rootBundle.loadString(customPath);
       } else {
-
-        try {
-          jsonString = await rootBundle.loadString('packages/validati10/assets/rules.json');
-        } catch (_) {
-          print("Validati10 Info: 'packages' yolu tapılmadı, yerli 'assets/rules.json' yoxlanılır...");
-          jsonString = await rootBundle.loadString('assets/rules.json');
-        }
+        jsonString = await rootBundle
+            .loadString('packages/validati10/assets/rules.json');
       }
 
       _rules = json.decode(jsonString);
-      _isInitialized = true;
-      print("Validati10: Qaydalar uğurla yükləndi! (${_rules.keys.join(', ')})");
-      
     } catch (e) {
-      print("❌ Validati10 KRİTİK XƏTA: rules.json faylı oxuna bilmədi!");
-      print("Səbəb: $e");
-      print("HƏLL: Paketin pubspec.yaml faylında 'assets/rules.json' olduğundan əmin olun.");
-      _rules = {}; 
+      _rules = {};
     }
   }
 
   static Map<String, dynamic>? _getCountryRules(String countryCode) {
-    if (!_isInitialized) {
-      print("⚠️ XƏBƏRDARLIQ: Validati10.initialize() çağırılmayıb! Bütün yoxlamalar false qaytaracaq.");
-    }
     return _rules[countryCode.toUpperCase()];
   }
 
-  static bool validatePhoneNumber(String phoneNumber, {required String country}) {
+  static bool validatePhoneNumber(String phoneNumber,
+      {required String country}) {
     var rules = _getCountryRules(country)?['phone'];
     if (rules == null || phoneNumber.isEmpty) return false;
 
     String cleanRegex = rules['format_clean_regex'] ?? r'[\s\-\(\)]';
     String cleaned = phoneNumber.replaceAll(RegExp(cleanRegex), '');
-    
+
     return RegExp(rules['regex']).hasMatch(cleaned);
   }
 
-  static String? getPhoneOperator(String phoneNumber, {required String country}) {
+  static String? getPhoneOperator(String phoneNumber,
+      {required String country}) {
     if (!validatePhoneNumber(phoneNumber, country: country)) return null;
 
     var rules = _getCountryRules(country)?['phone'];
@@ -64,14 +51,17 @@ class Validati10 {
 
     for (var prefix in operators.keys) {
       if (cleaned.contains(prefix)) {
-         if (country.toUpperCase() == 'AZ') {
-            if (cleaned.startsWith('0') && cleaned.startsWith(prefix, 1)) return operators[prefix];
-            if ((cleaned.startsWith('994') || cleaned.startsWith('+994')) && cleaned.contains(prefix)) {
-               return operators[prefix];
-            }
-         } else {
-             return operators[prefix];
-         }
+        if (country.toUpperCase() == 'AZ') {
+          if (cleaned.startsWith('0') && cleaned.startsWith(prefix, 1)) {
+            return operators[prefix];
+          }
+          if ((cleaned.startsWith('994') || cleaned.startsWith('+994')) &&
+              cleaned.contains(prefix)) {
+            return operators[prefix];
+          }
+        } else {
+          return operators[prefix];
+        }
       }
     }
     return null;
@@ -82,11 +72,18 @@ class Validati10 {
     if (rules == null || id.isEmpty) return false;
 
     String cleaned = id.toUpperCase().trim();
-    if (rules['length'] != null && cleaned.length != rules['length']) return false;
+
+    if (rules['length'] != null && cleaned.length != rules['length']) {
+      return false;
+    }
 
     bool matchesRegex = RegExp(rules['regex']).hasMatch(cleaned);
-    bool hasDigit = rules['requires_digit'] == true ? RegExp(r'[0-9]').hasMatch(cleaned) : true;
-    bool hasLetter = rules['requires_letter'] == true ? RegExp(r'[A-Z]').hasMatch(cleaned) : true;
+    bool hasDigit = rules['requires_digit'] == true
+        ? RegExp(r'[0-9]').hasMatch(cleaned)
+        : true;
+    bool hasLetter = rules['requires_letter'] == true
+        ? RegExp(r'[A-Z]').hasMatch(cleaned)
+        : true;
 
     return matchesRegex && hasDigit && hasLetter;
   }
@@ -101,17 +98,19 @@ class Validati10 {
 
   static String? getVehicleRegion(String plate, {required String country}) {
     if (!validateVehiclePlate(plate, country: country)) return null;
+
     var rules = _getCountryRules(country)?['vehicle'];
+
     if (rules != null && rules['region_index'] != null) {
-       String cleaned = plate.toUpperCase().replaceAll(RegExp(r'[\s\-]'), '');
-       List<dynamic> idx = rules['region_index'];
-       if (idx.length == 2) {
-         return cleaned.substring(idx[0], idx[1]);
-       }
+      String cleaned = plate.toUpperCase().replaceAll(RegExp(r'[\s\-]'), '');
+      List<dynamic> idx = rules['region_index'];
+      if (idx.length == 2) {
+        return cleaned.substring(idx[0], idx[1]);
+      }
     }
     return null;
   }
-  
+
   static bool validatePostalCode(String postalCode, {required String country}) {
     var rules = _getCountryRules(country)?['postal'];
     if (rules == null || postalCode.isEmpty) return false;
