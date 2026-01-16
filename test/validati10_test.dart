@@ -30,7 +30,8 @@ void main() {
   setUpAll(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMessageHandler('flutter/assets', (ByteData? message) async {
-      return ByteData.view(Uint8List.fromList(utf8.encode(mockRulesJson)).buffer);
+      return ByteData.view(
+          Uint8List.fromList(utf8.encode(mockRulesJson)).buffer);
     });
 
     await Validati10.initialize();
@@ -38,12 +39,15 @@ void main() {
 
   group('AZ Country Tests', () {
     test('Validates Phone Numbers correctly', () {
-      expect(Validati10.validatePhoneNumber('+994501234567', country: 'AZ'), true);
-      expect(Validati10.validatePhoneNumber('+15551234567', country: 'AZ'), false);
+      expect(
+          Validati10.validatePhoneNumber('+994501234567', country: 'AZ'), true);
+      expect(
+          Validati10.validatePhoneNumber('+15551234567', country: 'AZ'), false);
     });
 
     test('Detects Operators correctly', () {
-      expect(Validati10.getPhoneOperator('+994501234567', country: 'AZ'), 'Azercell');
+      expect(Validati10.getPhoneOperator('+994501234567', country: 'AZ'),
+          'Azercell');
     });
 
     test('Validates Identity (FIN)', () {
@@ -57,8 +61,10 @@ void main() {
 
   group('TR Country Tests', () {
     test('Validates TR Phone correctly', () {
-      expect(Validati10.validatePhoneNumber('05321234567', country: 'TR'), true);
-      expect(Validati10.validatePhoneNumber('+994501234567', country: 'TR'), false);
+      expect(
+          Validati10.validatePhoneNumber('05321234567', country: 'TR'), true);
+      expect(Validati10.validatePhoneNumber('+994501234567', country: 'TR'),
+          false);
     });
   });
 }
